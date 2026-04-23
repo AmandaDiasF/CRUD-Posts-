@@ -1,0 +1,16 @@
+# pastas de build / saída
+/build/
+/bin/
+/target/
+
+# arquivos gerados pelo Eclipse
+.classpath
+.project
+.settings/
+
+# arquivos do servidor local (se tiver)
+*.log
+
+# sistema operacional
+.DS_Store
+Thumbs.db
