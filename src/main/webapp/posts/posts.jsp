@@ -48,8 +48,7 @@
 					</tbody>
 				</table>
 				
-				<a href="${pageContext.request.contextPath}/posts/form_post.jsp" class="btn btn-primary">
-				Cadastrar post</a>
+				<a href="${pageContext.request.contextPath}/posts/new" class="btn btn-primary">Cadastrar post</a>
 			</div>
 			
 			<div class="col-md-1"></div>

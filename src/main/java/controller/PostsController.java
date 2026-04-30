@@ -17,7 +17,7 @@ import model.dao.DAOFactory;
 
 
 
-@WebServlet(urlPatterns = { "/posts", "/posts/save", "/posts/update", "/posts/delete" })
+@WebServlet(urlPatterns = { "/posts", "/posts/save", "/posts/update", "/posts/delete", "/posts/new" })
 public class PostsController extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +49,8 @@ public class PostsController extends HttpServlet {
                 break;
             }
             case "/facebook/posts/update": {
-                loadPost(req);
+                loadPost(req);         // carrega o post pelo postId
+                loadUsuarios(req);     // carrega a lista de usuários para o <select>
                 RequestDispatcher rd = req.getRequestDispatcher("/posts/form_post.jsp");
                 rd.forward(req, resp);
                 break;
@@ -57,6 +58,12 @@ public class PostsController extends HttpServlet {
             case "/facebook/posts/delete": {
                 deletePost(req);
                 resp.sendRedirect("/facebook/posts");
+                break;
+            }
+            case "/facebook/posts/new": {
+                loadUsuarios(req); // preenche a lista para o select
+                RequestDispatcher rd = req.getRequestDispatcher("/posts/form_post.jsp");
+                rd.forward(req, resp);
                 break;
             }
             default:
@@ -116,10 +123,10 @@ public class PostsController extends HttpServlet {
     
     private Post fillPost(HttpServletRequest req, Integer postId) {
         String content = req.getParameter("post_content");
-        
+        String userIdStr = req.getParameter("post_user_id");
+
         Post post;
-        	
-        
+
         if (postId == null) {
             post = new Post();
         } else {
@@ -128,13 +135,35 @@ public class PostsController extends HttpServlet {
 
         post.setContent(content);
 
-        // pegar o usuário logado da sessão
-        var session = req.getSession(false);
-        model.User user =(model.User) session.getAttribute("usuario_logado");
-        post.setUser(user);
+        // Associar usuário escolhido no form
+        if (userIdStr != null && !userIdStr.isBlank()) {
+            int userId = Integer.parseInt(userIdStr);
 
-        return post;
+            model.dao.UserDAO userDAO = model.dao.DAOFactory.createDAO(model.dao.UserDAO.class);
+            try {
+                model.User user = userDAO.findById(userId);
+                post.setUser(user);
+            } catch (ModelException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return post; 
+     	}
+    private void loadUsuarios(HttpServletRequest req) {
+        model.dao.UserDAO userDAO = model.dao.DAOFactory.createDAO(model.dao.UserDAO.class);
+
+        java.util.List<model.User> usuarios = java.util.List.of();
+
+        try {
+            usuarios = userDAO.listAll();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        req.setAttribute("usuarios", usuarios);
     }
+    
     private void deletePost(HttpServletRequest req) {
         String postIdStr = req.getParameter("postId");
         int postId = Integer.parseInt(postIdStr);

@@ -30,15 +30,17 @@ public class MySQLPostDAO implements PostDAO {
 		DBHandler db = new DBHandler();
 		
 		String sqlUpdate = "UPDATE posts "
-						 + " SET content = ? "
-						 + " WHERE id = ?;";
+				+ "   SET content = ?, "
+                + "       user_id = ? "
+                + " WHERE id = ?";
 		
 		db.prepareStatement(sqlUpdate);
 		
-		db.setString(1, post.getContent());
-		db.setInt(2, post.getId());
-		
-		return db.executeUpdate() > 0;
+		db.setString(1, post.getContent());        // novo conteúdo
+	    db.setInt(2, post.getUser().getId());      // novo usuário escolhido no select
+	    db.setInt(3, post.getId());               // qual post atualizar
+			
+	    return db.executeUpdate() > 0;
 	}
 
 	@Override
